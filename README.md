@@ -1,4 +1,4 @@
-#A System-on-a-Chip for Embedded Vision
+# A System-on-a-Chip for Embedded Vision
 ## Overview
 This System-on-a-Chip (SoC) will function as a low-power "smart eye" for detecting presence. It will process a video stream from a camera connected via its SPI interface to identify people or objects in real-time. The onboard Microwatt CPU will manage the system, while a dedicated hardware accelerator will perform the actual vision task using efficient classical algorithms—either background subtraction for general motion or a Haar Cascade classifier for specific objects. The SoC will then output a simple result (e.g., "person detected") via its UART interface, which will enable smart, on-device decision-making without a cloud connection, thus ensuring privacy and low latency.
 
