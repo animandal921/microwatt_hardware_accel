@@ -1,75 +1,43 @@
-# OpenFrame Overview
+#A System-on-a-Chip for Embedded Vision
+## Overview
+This System-on-a-Chip (SoC) will function as a low-power "smart eye" for detecting presence. It will process a video stream from a camera connected via its SPI interface to identify people or objects in real-time. The onboard Microwatt CPU will manage the system, while a dedicated hardware accelerator will perform the actual vision task using efficient classical algorithms—either background subtraction for general motion or a Haar Cascade classifier for specific objects. The SoC will then output a simple result (e.g., "person detected") via its UART interface, which will enable smart, on-device decision-making without a cloud connection, thus ensuring privacy and low latency.
 
-The OpenFrame Project provides an empty harness chip that differs significantly from the Caravel and Caravan designs. Unlike Caravel and Caravan, which include integrated SoCs and additional features, OpenFrame offers only the essential padframe, providing users with a clean slate for their custom designs.
+## Architecture
+The SoC will integrate a general-purpose CPU core with a specialized, fixed-function hardware accelerator. This architecture will allow each component to operate with maximum efficiency: the CPU will handle high-level control and decision-making, while the accelerator will perform the repetitive, high-throughput pixel processing.
 
-<img width="256" alt="Screenshot 2024-06-24 at 12 53 39 PM" src="https://github.com/efabless/openframe_timer_example/assets/67271180/ff58b58b-b9c8-4d5e-b9bc-bf344355fa80">
+The Controller: Microwatt CPU Core
+The system will be managed by a Microwatt core, an open-source, 64-bit processor based on the OpenPOWER Instruction Set Architecture (ISA). It will act as a lightweight system controller and will run a bare-metal C program to handle tasks such as:
 
-## Key Characteristics of OpenFrame
+Initializing the system and peripherals on startup.
 
-1. **Minimalist Design:** 
-   - No integrated SoC or additional circuitry.
-   - Only includes the padframe, a power-on-reset circuit, and a digital ROM containing the 32-bit project ID.
+Configuring the vision accelerator (e.g., setting the detection threshold).
 
-2. **Padframe Compatibility:**
-   - The padframe design and pin placements match those of the Caravel and Caravan chips, ensuring compatibility and ease of transition between designs.
-   - Pin types are identical, with power and ground pins positioned similarly and the same power domains available.
+Managing the flow of data from the camera to the accelerator.
 
-3. **Flexibility:**
-   - Provides full access to all GPIO controls.
-   - Maximizes the user project area, allowing for greater customization and integration of alternative SoCs or user-specific projects at the same hierarchy level.
+Interpreting the simple, binary result from the accelerator to make a decision.
 
-4. **Simplified I/O:**
-   - Pins that previously connected to CPU functions (e.g., flash controller interface, SPI interface, UART) are now repurposed as general-purpose I/O, offering flexibility for various applications.
+The Engine: Classical Vision Accelerator
+The intensive vision processing will be offloaded to a custom classical computer vision accelerator. This versatile hardware block will be designed for efficiency and will operate in two modes:
 
-The OpenFrame harness is ideal for those looking to implement custom SoCs or integrate user projects without the constraints of an existing SoC.
+Background Subtraction: For simple motion or change detection, it will use a highly area-efficient algorithm that is ideal for static scenes.
 
-## Features
+Haar Cascade Classifier: For more advanced tasks, such as specifically identifying a person or face, it will implement this robust, feature-based algorithm.
 
-1. 44 configurable GPIOs.
-2. User area of approximately 15mm².
-3. Supports digital, analog, or mixed-signal designs.
+The Interfaces
+The chip will communicate with the outside world using standard, low-pin-count interfaces:
 
-# openframe_timer_example
+SPI: Will be used to receive image data from an external camera module or sensor.
 
-This example implements a simple timer and connects it to the GPIOs.
+UART: Will provide a simple serial connection for debugging during development and for sending final detection results to a host system in production.
 
-## Installation and Setup
+## Target Applications
+This design will be ideal for high-volume, "set-and-forget" tasks where the primary goal is to detect a change in a static environment.
 
-First, clone the repository:
+Smart Home & Office: Automatically control lighting, heating, or air conditioning when a person enters or leaves a room.
 
-```bash
-git clone https://github.com/efabless/openframe_timer_example.git
-cd openframe_timer_example
-```
+Simple Security: Trigger an alert or a separate high-resolution camera when motion is detected in a fixed area.
 
-Then, download all dependencies:
+Industrial & Retail: Monitor a conveyor belt to confirm the presence of parts or check if a shelf in a smart vending machine is empty.
 
-```bash
-make setup
-```
-
-## Hardening the Design
-
-In this example, we will harden the timer. You will need to harden your own design similarly.
-
-```bash
-make user_proj_timer
-```
-
-Once you have hardened your design, integrate it into the OpenFrame wrapper:
-
-```bash
-make openframe_project_wrapper
-```
-
-## Important Notes
-
-1. **Connecting to Power:**
-   - Ensure your design is connected to power using the power pins on the wrapper.
-   - Use the `vccd1_connection` and `vssd1_connection` macros, which contain the necessary vias and nets for power connections.
-
-2. **Flattening the Design:**
-   - If you plan to flatten your design within the `openframe_project_wrapper`, do not buffer the analog pins using standard cells.
-
-3. **Running Custom Steps:**
-   - Execute the custom step in OpenLane that copies the power pins from the template DEF. If this step is skipped, the precheck will fail, and your design will not be powered.
+📄 License
+This project is licensed under the MIT License. See the LICENSE file for details.
