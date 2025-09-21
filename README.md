@@ -39,5 +39,5 @@ Simple Security: Trigger an alert or a separate high-resolution camera when moti
 
 Industrial & Retail: Monitor a conveyor belt to confirm the presence of parts or check if a shelf in a smart vending machine is empty.
 
-📄 License
+## License
 This project is licensed under the MIT License. See the LICENSE file for details.
